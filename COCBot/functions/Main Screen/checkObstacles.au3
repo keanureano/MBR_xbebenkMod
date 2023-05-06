@@ -129,13 +129,18 @@ Func _checkObstacles($bBuilderBase = False) ;Checks if something is in the way f
 		Return checkObstacles_ReloadCoC() ;Last chance -> Reload CoC
 	EndIf
 	
-	If WaitforPixel(400, 526, 440, 530, Hex(0x75BE2F, 6), 6, 1) Then
+	If _ColorCheck(_GetPixelColor(823,176, True), Hex(0x882C19, 6), 20) And _ColorCheck(_GetPixelColor(430, 499, True), Hex(0xFFFFFF, 6), 20) Then 	
 		SetLog("checkObstacles: Found WelcomeBack Chief Window to close", $COLOR_ACTION)
 		Click(440, 526)
-		If _Sleep($DELAYCHECKOBSTACLES1) Then Return
-		$g_bMinorObstacle = True
-		Return False
 	EndIf
+	
+	;If WaitforPixel(400, 526, 440, 530, Hex(0x75BE2F, 6), 6, 1) Then
+	;	SetLog("checkObstacles: Found WelcomeBack Chief Window to close", $COLOR_ACTION)
+	;	Click(440, 526)
+	;	If _Sleep($DELAYCHECKOBSTACLES1) Then Return
+	;	$g_bMinorObstacle = True
+	;	Return False
+	;EndIf
 	
 	;If WaitforPixel(420, 600, 420,600, "000000", 20, 1) Then
 	;	If WaitforPixel(420, 563, 421,564, "6CBB1F", 20, 1) Then
@@ -284,8 +289,7 @@ Func _checkObstacles($bBuilderBase = False) ;Checks if something is in the way f
 	
 	If QuickMIS("BC1", $g_sImgCCMap, 300, 10, 430, 40) Then ; if bot started or situated on clan capital map, and need to go back to main village
 		SetLog("checkObstacles: Found Clan Capital Map, Returning Home", $COLOR_ACTION)
-		Click(60, 610)
-		_Sleep(1000)
+		SwitchToMainVillage("CheckObstacle")
 		Return False
 	EndIf
 	
@@ -293,6 +297,21 @@ Func _checkObstacles($bBuilderBase = False) ;Checks if something is in the way f
 		SetLog("checkObstacles: Found Unplaced Building Button, Try Place it on Map", $COLOR_ACTION)
 		PlaceUnplacedBuilding()
 		Return False
+	EndIf
+	
+	Local $sUpdateAvail = getOcrAndCapture("coc-UpdateAvail", 320, 235, 220, 30)
+	If $sUpdateAvail = "Update Available" Then 
+		SetLog("Chief, we have minor coc Update!", $COLOR_INFO)
+		ClickAway()
+		_Sleep(1000)
+		Return
+	EndIf
+	
+	;End Battle Page on BuilderBase (OK Button)
+	If QuickMIS("BC1", $g_sImgOkButton, 350, 520, 500, 570) Then
+		Click($g_iQuickMISX, $g_iQuickMISY)
+		_Sleep(3000)
+		Return
 	EndIf
 	
 	;====move switch bb/main to bottom, so we only check if all above test is False
@@ -316,7 +335,7 @@ Func _checkObstacles($bBuilderBase = False) ;Checks if something is in the way f
 		EndIf
 	EndIf
 	
-	If Not isOnMainVillage() And IsAttackPage() Then ; bot seeing attackbar while it shouldn't, will do surrender and/or return home   
+	If Not isOnMainVillage() And IsAttackPage() And Not isOnBuilderBase() Then ; bot seeing attackbar while it shouldn't, will do surrender and/or return home   
 		ClickP($aIsAttackPage)
 		If _Sleep(1000) Then Return
 		For $i = 1 To 5
@@ -329,14 +348,14 @@ Func _checkObstacles($bBuilderBase = False) ;Checks if something is in the way f
 			If IsReturnHomeBattlePage(True) Then ClickP($aReturnHomeButton, 1, 0, "#0101") ;Click Return Home Button
 			If _Sleep(1000) Then Return
 		Next
-		SetLog("CheckObstacle: Not in MainVillage And detected AttackPage", $COLOR_ACTION)
-		ClickAway(Default, True)
+		;SetLog("CheckObstacle: Not in MainVillage And detected AttackPage", $COLOR_ACTION)
+		ClickAway("Left", True)
 		Return False
 	EndIf
 	
 	;xbebenk: I need this click away to be logged
-	SetLog("CheckObstacle: Not Found Any obs, just do clickaway()", $COLOR_ACTION)
-	ClickAway(Default, True)
+	;SetLog("CheckObstacle: Not Found Any obs, just do clickaway()", $COLOR_ACTION)
+	ClickAway("Left", True)
 	Return False
 EndFunc   ;==>_checkObstacles
 

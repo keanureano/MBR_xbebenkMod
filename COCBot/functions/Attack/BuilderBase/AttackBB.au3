@@ -18,7 +18,7 @@ Func CheckCGCompleted()
 	For $x = 1 To 8
 		If Not $g_bRunState Then Return
 		SetLog("Check challenges progress #" &$x, $COLOR_ACTION)
-		_Sleep(1500)
+		If _Sleep(1500) Then Return
 		If QuickMIS("BC1", $g_sImgGameComplete, 760, 450, 820, 520) Then
 			SetLog("Nice, Game Completed", $COLOR_INFO)
 			$bRet = True
@@ -39,12 +39,12 @@ Func DoAttackBB($g_iBBAttackCount = $g_iBBAttackCount)
 			SetLog("Attack #" & $count & "/~", $COLOR_INFO)
 			_AttackBB()
 			If Not $g_bRunState Then Return
-			If $g_bChkForceBBAttackOnClanGames And $g_bIsBBevent Then
+			If $g_bIsBBevent Then
 				If CheckCGCompleted() Then ExitLoop
 			Else
-				_Sleep(2000)
+				If _Sleep(2000) Then Return
 			EndIf
-			$g_iBBAttacked = True
+			$g_bBBAttacked = True
 			$count += 1
 			If $count > 10 Then
 				SetLog("Something maybe wrong", $COLOR_INFO)
@@ -52,10 +52,11 @@ Func DoAttackBB($g_iBBAttackCount = $g_iBBAttackCount)
 				ExitLoop
 			EndIf
 		Wend
-
+		
+		ZoomOut(True)
 		SetLog("Skip Attack this time..", $COLOR_DEBUG)
 		ClickAway("Left")
-		_Sleep(1000)
+		If _Sleep(1000) Then Return
 	Else
 		For $i = 1 To $g_iBBAttackCount
 			If Not $g_bRunState Then Return
@@ -68,17 +69,17 @@ Func DoAttackBB($g_iBBAttackCount = $g_iBBAttackCount)
 				If $g_bChkForceBBAttackOnClanGames And $g_bIsBBevent Then
 					If CheckCGCompleted() Then ExitLoop
 				Else
-					_Sleep(2000)
+					If _Sleep(2000) Then Return
 				EndIf
 			Else
 				ExitLoop
 			EndIf
 		Next
+		ZoomOut(True)
 		SetLog("Skip Attack this time..", $COLOR_DEBUG)
 		ClickAway("Left")
 	EndIf
 	If Not $g_bRunState Then Return
-	If checkMainScreen(True, $g_bStayOnBuilderBase, "DoAttackBB") Then ZoomOut()
 	SetLog("BB Attack Cycle Done", $COLOR_DEBUG)
 EndFunc
 
@@ -260,7 +261,7 @@ Func AttackBB($aBBAttackBar = Default)
 		EndIf
 		$waitcount += 1
 		SetDebugLog("Waiting Battle End #" & $waitcount, $COLOR_ACTION)
-		_Sleep(2000)
+		If _Sleep(2000) Then Return
 		If IsProblemAffect(True) Then Return
 		If Not $g_bRunState Then Return
 		If $waitcount > 30 Then ExitLoop
@@ -360,7 +361,7 @@ Func DeployBM($aBMPos, $iSide, $AltSide, $aDP)
 
 			Local $iPoint = Random(0, UBound($aDP) - 1, 1)
 			PureClick($aDP[$iPoint][1], $aDP[$iPoint][2])
-			_Sleep(500)
+			If _Sleep(500) Then Return
 			If WaitforPixel($TmpBMPosX - 1, $BMPosY - 1, $TmpBMPosX + 1, $BMPosY + 1, "240571", 10, 1) Then ExitLoop
 		Next
 		$bBMDeployed = True ;we dont know BM is deployed or no, just set it true as already try 3 time to deployBM
@@ -386,7 +387,7 @@ Func CheckBMLoop($aBMPos)
 		EndIf
 
 		If WaitforPixel($TmpBMPosX - 1, $BMPosY - 1, $TmpBMPosX + 1, $BMPosY + 1, "8C8C8C", 10, 1) Then
-			_Sleep(500)
+			If _Sleep(500) Then Return
 			SetDebugLog("Waiting Battle Machine Ability", $COLOR_DEBUG2)
 			ContinueLoop
 		Else
@@ -441,10 +442,10 @@ Func SetVersusBHToMid()
 	Else
 		SaveDebugImage("SetVersusBHToMid")
 		ClickDrag(430, 500, 430, 300)	;If we cannot find BH on first search, try to scroll down. Maybe BH is at the bottom of the base.
-		_Sleep(1500)
+		If _Sleep(1500) Then Return
 		If QuickMIS("BC1", $g_sImgVersusBH, 50,50,800,570) Then
 			ClickDrag($g_iQuickMISX, $g_iQuickMISY, $xMiddle, $yMiddle, $Delay) ;drag to center
-			_Sleep(1500)
+			If _Sleep(1500) Then Return
 			$aRet[0] = True
 		Else
 			SetDebugLog("SetVersusBHToMid(): Versus BH Not Found", $COLOR_INFO)
