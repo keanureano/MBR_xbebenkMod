@@ -22,7 +22,6 @@ BuildMBR.exe
 
 # Exclude Global Folders
 [Ll]anguages/
-[Pp]rofiles/
 [Tt]emplates/
 [Tt]emp/
 [Bb]ackup/
